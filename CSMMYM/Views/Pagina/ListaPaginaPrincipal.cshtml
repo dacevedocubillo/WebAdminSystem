@@ -1,0 +1,137 @@
+﻿@{
+    ViewBag.Title = "PaginaPrincipal";
+}
+
+<h2>Mantenimiento – Página Principal</h2>
+
+<br />
+
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- FontAwesome CSS (Para íconos) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+
+
+<div class="container">
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Sección</th>
+                    <th>Título</th>
+                    <th>Estado</th>
+                    <th>Contenido</th>
+                    <th style="width:220px">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pagina in Model)
+                {
+                    <tr>
+                        <td>@pagina.seccion</td>
+                        <td>@pagina.titulo</td>
+                        <td>
+                            @if (pagina.estado == "activo")
+                            {
+                                <span class="badge bg-success">Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Inactivo</span>
+                            }
+                        </td>
+                        <td>@pagina.contenido</td>
+
+                        <td>
+                            <!-- Botón Editar -->
+                            <a href="@Url.Action("EditarPagina", "Pagina", new { id_pagina = pagina.id_pagina })"
+                               class="btn btn-sm btn-primary me-1">
+                                <i class="fas fa-edit"></i> Editar
+                            </a>
+
+                            <!-- Botón Activar/Desactivar -->
+                            @if (pagina.estado == "activo")
+                            {
+                                using (Html.BeginForm("DeshabilitarSeccion", "Pagina", FormMethod.Post, new { style = "display:inline;" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@pagina.id_pagina" />
+                                    <button type="submit"
+                                            class="btn btn-sm btn-warning"
+                                            onclick="return confirm('¿Deseas DESACTIVAR esta sección?');">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                }
+                            }
+                            else
+                            {
+                                using (Html.BeginForm("HabilitarSeccion", "Pagina", FormMethod.Post, new { style = "display:inline;" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@pagina.id_pagina" />
+                                    <button type="submit"
+                                            class="btn btn-sm btn-success"
+                                            onclick="return confirm('¿Deseas ACTIVAR esta sección?');">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- CSS personalizado para el botón -->
+<style>
+    /* TABLA */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+        .table thead {
+            background: linear-gradient(135deg, #343a40, #495057);
+            color: #ffc107; /* amarillo corporativo */
+            font-weight: 600;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f3f5;
+            transition: background-color 0.2s ease;
+        }
+
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.4em 0.7em;
+        border-radius: 8px;
+    }
+
+    td .btn {
+        margin-right: 4px;
+    }
+
+    /* BOTÓN AGREGAR PRODUCTO */
+    .btn-add-product {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: #fff;
+        font-weight: 600;
+        padding: 0.6rem 1.2rem;
+        border-radius: 30px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+        .btn-add-product:hover {
+            background: linear-gradient(135deg, #20c997, #28a745);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+            text-decoration: none;
+        }
+</style>
+

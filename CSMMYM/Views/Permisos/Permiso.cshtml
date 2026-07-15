@@ -1,0 +1,51 @@
+﻿@{
+    ViewBag.Title = "Permisos del Sistema";
+}
+
+<h2>Permisos del Sistema</h2>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Mensaje"]
+    </div>
+}
+
+<form action="/Permisos/Guardar" method="post">
+
+    <div class="card mt-3">
+        <div class="card-body">
+
+            <h4 class="card-title">Configuración de permisos</h4>
+            <p class="text-muted">Activa o desactiva las funciones del sistema.</p>
+
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="accesoUsuarios"
+                       name="accesoUsuarios" @(ViewBag.AccesoUsuarios ? "checked" : "") />
+                <label class="form-check-label" for="accesoUsuarios">Acceso a Usuarios</label>
+            </div>
+
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="accesoReportes"
+                       name="accesoReportes" @(ViewBag.AccesoReportes ? "checked" : "") />
+                <label class="form-check-label" for="accesoReportes">Acceso a Reportes</label>
+            </div>
+
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="accesoSeguridad"
+                       name="accesoSeguridad" @(ViewBag.AccesoSeguridad ? "checked" : "") />
+                <label class="form-check-label" for="accesoSeguridad">Acceso a Seguridad</label>
+            </div>
+
+            <div class="form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="accesoProductos"
+                       name="accesoProductos" @(ViewBag.AccesoProductos ? "checked" : "") />
+                <label class="form-check-label" for="accesoProductos">Acceso a Productos</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary mt-3">Guardar cambios</button>
+
+        </div>
+    </div>
+
+</form>

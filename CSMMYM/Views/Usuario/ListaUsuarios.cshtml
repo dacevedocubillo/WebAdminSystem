@@ -1,0 +1,137 @@
+﻿@{
+    ViewBag.Title = "ListaUsuarios";
+}
+
+<h2 class="mb-4">
+    <i class="fas fa-users-cog me-2 text-primary"></i> Administración de Usuarios
+</h2>
+
+<div class="text-end mt-4">
+    <a href="@Url.Action("CrearUsuario", "Usuario")"
+       class="btn btn-success px-4 py-2 shadow-sm fw-semibold btn-add">
+        <i class="fas fa-user-plus me-2"></i> Agregar Usuario
+    </a>
+</div>
+
+<div class="table-responsive mt-3">
+    <table class="table table-bordered table-striped align-middle shadow-sm">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Estado</th>
+                <th style="width:200px;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null)
+            {
+                foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.nombre</td>
+                        <td>@item.usuario</td>
+                        <td>@item.nombre_rol</td>
+                        <td>
+                            @if (item.estado == "Activo")
+                            {
+                                <span class="badge bg-success">
+                                    <i class="fas fa-check-circle me-1"></i> Activo
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">
+                                    <i class="fas fa-times-circle me-1"></i> Inactivo
+                                </span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex flex-wrap gap-2">
+                                @Html.ActionLink("Editar", "EditarUsuario", "Usuario",
+                                         new { id_usuario = item.id_usuario },
+                                         new { @class = "btn btn-warning btn-sm fw-semibold" })
+
+                                @Html.ActionLink("Permisos", "EditarPermisos", "Usuario",
+                                         new { id_usuario = item.id_usuario },
+                                         new { @class = "btn btn-primary btn-sm fw-semibold" })
+
+                                @if (item.estado == "Activo")
+                                {
+                                    @Html.ActionLink("Desactivar", "Desactivar", "Usuario",
+                                             new { id = item.id_usuario },
+                                             new { @class = "btn btn-danger btn-sm fw-semibold" })
+                                }
+                                else
+                                {
+                                    @Html.ActionLink("Activar", "Activar", "Usuario",
+                                             new { id = item.id_usuario },
+                                             new { @class = "btn btn-success btn-sm fw-semibold" })
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- FontAwesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<!-- CSS personalizado -->
+<style>
+    h2 {
+        font-weight: 700;
+        color: #343a40;
+        border-bottom: 3px solid #007bff;
+        display: inline-block;
+        padding-bottom: 0.3rem;
+    }
+
+    .btn-add {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-add:hover {
+            background: linear-gradient(135deg, #20c997, #28a745);
+            transform: translateY(-2px);
+        }
+
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+        .table thead {
+            background: linear-gradient(135deg, #343a40, #495057);
+            color: #ffc107;
+            font-weight: 600;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+            transition: background-color 0.2s ease;
+        }
+
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.4em 0.7em;
+        border-radius: 8px;
+    }
+
+    .btn-sm {
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-sm:hover {
+            transform: translateY(-2px);
+        }
+</style>

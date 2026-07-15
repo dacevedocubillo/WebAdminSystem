@@ -1,0 +1,76 @@
+﻿@model CSMMYM.Models.RetornaPaginaContenido_ID_Result
+
+@{
+    ViewBag.Title = "EditarPagina";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">✏️ Editar Página Principal</h2>
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    @if (ViewBag.MensajeError != null)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.MensajeError
+        </div>
+    }
+
+    @if (TempData["MensajeExito"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["MensajeExito"]
+        </div>
+    }
+
+    @using (Html.BeginForm("EditarPagina", "Pagina", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        @Html.HiddenFor(m => m.id_pagina)
+        @Html.HiddenFor(m => m.tipo)
+        @Html.HiddenFor(m => m.seccion)
+        @Html.HiddenFor(m => m.id_usuario_editor)
+
+        <!-- TÍTULO -->
+        <div class="form-group mb-3">
+            @Html.LabelFor(m => m.titulo, new { @class = "form-label fw-bold" })
+            @Html.TextBoxFor(m => m.titulo, new { @class = "form-control", placeholder = "Título de la sección" })
+        </div>
+
+        <!-- CONTENIDO -->
+        <div class="form-group mb-3">
+            @Html.LabelFor(m => m.contenido, new { @class = "form-label fw-bold" })
+            @Html.TextAreaFor(m => m.contenido, new { @class = "form-control", rows = 8, placeholder = "Contenido de la página" })
+        </div>
+
+        <!-- ESTADO -->
+        <div class="form-group mb-4">
+            @Html.Label("Estado", new { @class = "form-label fw-bold" })
+            @Html.DropDownListFor(
+                m => m.estado,
+                new SelectList(
+                    new[] {
+                        new { Value = "activo", Text = "Activo" },
+                        new { Value = "inactivo", Text = "Inactivo" }
+                    },
+                    "Value",
+                    "Text",
+                    Model.estado
+                ),
+                new { @class = "form-select" }
+            )
+        </div>
+
+        <hr />
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-success">
+                💾 Guardar cambios
+            </button>
+
+            @Html.ActionLink("↩️ Volver a la lista", "ListaPaginaPrincipal", "Pagina",
+                null, new { @class = "btn btn-secondary" })
+        </div>
+    }
+</div>

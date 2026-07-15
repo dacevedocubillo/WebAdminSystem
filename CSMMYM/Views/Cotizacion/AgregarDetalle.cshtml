@@ -1,0 +1,106 @@
+﻿@model CSMMYM.Models.Detalle_Cotizacion
+
+@{
+    ViewBag.Title = "Agregar Ítem";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="mb-4">Agregar Ítem</h2>
+
+@Html.ValidationSummary(true, "", new { @class = "text-danger mb-3" })
+
+<div class="form-container">
+    @using (Html.BeginForm("AgregarDetalle", "Cotizacion", FormMethod.Post))
+    {
+        @Html.HiddenFor(m => m.id_cotizacion)
+
+        <div class="mb-3">
+            <label class="fw-semibold">Producto</label>
+            @Html.DropDownListFor(m => m.id_producto, (SelectList)ViewBag.Productos, "Seleccione", new { @class = "form-select", id = "ddlProducto" })
+        </div>
+
+        <div class="mb-3">
+            <label class="fw-semibold">Servicio</label>
+            @Html.DropDownListFor(m => m.id_servicio, (SelectList)ViewBag.Servicios, "Seleccione", new { @class = "form-select", id = "ddlServicio" })
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(m => m.cantidad, new { @class = "fw-semibold" })
+            @Html.TextBoxFor(m => m.cantidad, new { @class = "form-control", placeholder = "Ej: 5" })
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(m => m.duracion, new { @class = "fw-semibold" })
+            @Html.TextBoxFor(m => m.duracion, new { @class = "form-control", placeholder = "Ej: 3 meses" })
+        </div>
+
+        <div class="mb-3">
+            @Html.LabelFor(m => m.precio_unitario, new { @class = "fw-semibold" })
+            @Html.TextBoxFor(m => m.precio_unitario, new { @class = "form-control", placeholder = "₡0.00", step = "0.01", min = "1", id = "precio" })
+            <span id="mensajeError" class="text-danger small"></span>
+        </div>
+
+        <div class="text-end mt-4">
+            <button type="submit" class="btn btn-success px-4 py-2 shadow-sm me-2">
+                <i class="fas fa-save me-2"></i> Guardar
+            </button>
+            <a href="@Url.Action("Detalle", "Cotizacion", new { id = Model.id_cotizacion })"
+               class="btn btn-outline-secondary px-4 py-2 shadow-sm">
+                <i class="fas fa-arrow-left me-2"></i> Cancelar
+            </a>
+        </div>
+    }
+</div>
+
+<!-- CSS personalizado -->
+<style>
+    .form-container {
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        max-width: 700px;
+        margin: auto;
+    }
+
+    h2 {
+        font-weight: 700;
+        color: #343a40;
+        border-bottom: 3px solid #007bff;
+        display: inline-block;
+        padding-bottom: 0.3rem;
+    }
+
+    .form-control, .form-select {
+        border-radius: 8px;
+        transition: box-shadow 0.2s ease;
+    }
+
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+            border-color: #007bff;
+        }
+
+    .btn-success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        font-weight: 600;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #20c997, #28a745);
+            transform: translateY(-2px);
+        }
+
+    .btn-outline-secondary {
+        border-radius: 30px;
+        font-weight: 600;
+    }
+
+    .text-danger {
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+</style>

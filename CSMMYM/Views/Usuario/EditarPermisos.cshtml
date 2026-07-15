@@ -1,0 +1,106 @@
+﻿@model CSMMYM.Models.PermisosUsuario
+
+@{
+    ViewBag.Title = "EditarPermisos";
+}
+
+<h2 class="mb-4">
+    <i class="fas fa-user-shield me-2 text-primary"></i> Permisos del Usuario
+</h2>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success shadow-sm rounded-3">
+        <i class="fas fa-check-circle me-2"></i> @TempData["Mensaje"]
+    </div>
+}
+
+<form action="/Usuario/GuardarPermisos" method="post" class="card shadow-sm p-4 rounded-3">
+    <input type="hidden" name="id_usuario" value="@ViewBag.IdUsuario" />
+
+    <div class="form-check mb-3">
+        @Html.CheckBoxFor(m => m.AccesoUsuarios, new { @class = "form-check-input" })
+        @Html.LabelFor(m => m.AccesoUsuarios, "Acceso a Usuarios", new { @class = "form-check-label fw-semibold" })
+    </div>
+
+    <div class="form-check mb-3">
+        @Html.CheckBoxFor(m => m.AccesoReportes, new { @class = "form-check-input" })
+        @Html.LabelFor(m => m.AccesoReportes, "Acceso a Reportes", new { @class = "form-check-label fw-semibold" })
+    </div>
+
+    <div class="form-check mb-3">
+        @Html.CheckBoxFor(m => m.AccesoSeguridad, new { @class = "form-check-input" })
+        @Html.LabelFor(m => m.AccesoSeguridad, "Acceso a Seguridad", new { @class = "form-check-label fw-semibold" })
+    </div>
+
+    <div class="form-check mb-3">
+        @Html.CheckBoxFor(m => m.AccesoProductos, new { @class = "form-check-input" })
+        @Html.LabelFor(m => m.AccesoProductos, "Acceso a Productos", new { @class = "form-check-label fw-semibold" })
+    </div>
+
+    <div class="text-end mt-4">
+        <button type="submit" class="btn btn-primary px-4 py-2 shadow-sm btn-save">
+            <i class="fas fa-save me-2"></i> Guardar
+        </button>
+        <a href="@Url.Action("ListaUsuarios", "Usuario")"
+           class="btn btn-secondary px-4 py-2 shadow-sm ms-2">
+            <i class="fas fa-arrow-left me-2"></i> Cancelar
+        </a>
+    </div>
+</form>
+
+<!-- FontAwesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<!-- CSS personalizado -->
+<style>
+    h2 {
+        font-weight: 700;
+        color: #343a40;
+        border-bottom: 3px solid #007bff;
+        display: inline-block;
+        padding-bottom: 0.3rem;
+    }
+
+    .card {
+        border: none;
+        background: #ffffff;
+    }
+
+    .form-check-input {
+        cursor: pointer;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #007bff, #0dcaf0);
+        border: none;
+        font-weight: 600;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-save:hover {
+            background: linear-gradient(135deg, #0dcaf0, #007bff);
+            transform: translateY(-2px);
+        }
+
+    .btn-secondary {
+        border-radius: 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn-secondary:hover {
+            background-color: #6c757d;
+            color: #fff;
+            transform: translateY(-2px);
+        }
+
+    .alert-success {
+        font-weight: 500;
+    }
+</style>

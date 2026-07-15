@@ -1,0 +1,103 @@
+﻿@{
+    ViewBag.Title = "Panel de Administrador";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container py-5">
+    <!-- Encabezado -->
+    <h2 class="mb-4 text-dark fw-bold">
+        <i class="fas fa-chart-line me-2 text-primary"></i> Panel de Administrador
+    </h2>
+    <h5 class="mb-4 text-muted">Bienvenido, <span class="fw-semibold">@Session["Usuario"]</span></h5>
+
+    <!-- Sección principal -->
+    <div class="row g-4">
+        <!-- Productos -->
+        <div class="col-md-3">
+            <div class="card text-center shadow-lg border-0 rounded-3 h-100 card-hover">
+                <i class="fas fa-box fa-3x text-primary mb-3"></i>
+                <h5 class="fw-bold">Productos</h5>
+                <a href="@Url.Action("ListaProductos","Producto")" class="btn btn-outline-primary mt-2">Administrar</a>
+            </div>
+        </div>
+
+        <!-- Servicios -->
+        <div class="col-md-3">
+            <div class="card text-center shadow-lg border-0 rounded-3 h-100 card-hover">
+                <i class="fas fa-tools fa-3x text-success mb-3"></i>
+                <h5 class="fw-bold">Servicios</h5>
+                <a href="@Url.Action("ListaServicios","Servicio")" class="btn btn-outline-success mt-2">Administrar</a>
+            </div>
+        </div>
+
+        <!-- Contactos -->
+        <div class="col-md-3">
+            <div class="card text-center shadow-lg border-0 rounded-3 h-100 card-hover">
+                <i class="fas fa-envelope fa-3x text-warning mb-3"></i>
+                <h5 class="fw-bold">Contactos</h5>
+                <a href="@Url.Action("ListaContacto","Contacto")" class="btn btn-outline-warning mt-2">Ver mensajes</a>
+            </div>
+        </div>
+
+        <!-- Usuarios -->
+        <div class="col-md-3">
+            <div class="card text-center shadow-lg border-0 rounded-3 h-100 card-hover">
+                <i class="fas fa-users fa-3x text-secondary mb-3"></i>
+                <h5 class="fw-bold">Usuarios</h5>
+                <a href="@Url.Action("ListaUsuarios","Usuario")" class="btn btn-outline-secondary mt-2">Administrar</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de Reportes -->
+    <h3 class="mt-5 mb-3 text-dark fw-bold">
+        <i class="fas fa-file-alt me-2 text-info"></i> Reportes
+    </h3>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card text-center shadow-lg border-0 rounded-3 h-100 card-hover">
+                <i class="fas fa-box-open fa-3x text-primary mb-3"></i>
+                <h5 class="fw-bold">Productos</h5>
+                <a href="@Url.Action("ReporteProductos","Reportes")" class="btn btn-outline-primary mt-2">Ver reportes</a>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-center shadow-lg border-0 rounded-3 h-100 card-hover">
+                <i class="fas fa-cogs fa-3x text-success mb-3"></i>
+                <h5 class="fw-bold">Servicios</h5>
+                <a href="@Url.Action("ReporteServicios","Reportes")" class="btn btn-outline-success mt-2">Ver reportes</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FontAwesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<!-- CSS personalizado -->
+<style>
+    h2, h3 {
+        border-bottom: 3px solid #007bff;
+        display: inline-block;
+        padding-bottom: 0.3rem;
+    }
+
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+
+    .btn {
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+</style>

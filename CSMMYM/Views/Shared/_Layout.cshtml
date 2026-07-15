@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>@ViewBag.Title - CSSMY</title>
+
+    <link href="~/Content/admin-mantenimientos.css" rel="stylesheet" />
+
+
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+
+    <style>
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .body-content {
+            flex: 1; /* empuja el footer hacia abajo */
+        }
+
+        footer {
+            background-color: #f8f9fa;
+            border-top: 1px solid #dee2e6;
+            padding: 10px;
+            text-align: center;
+        }
+    </style>
+
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow-sm">
+        <div class="container">
+
+            <!-- LOGO -->
+            @Html.ActionLink("CSSMY", "Index", "Home", null, new { @class = "navbar-brand fw-bold" })
+
+            <!-- BOTÓN MÓVIL -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu" aria-controls="menu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="menu">
+
+                <!-- MENU PRINCIPAL -->
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">@Html.ActionLink("Inicio", "PanelAdmin", "Administrador", null, new { @class = "nav-link" })</li>
+
+                    @if (Session["Usuario"] != null)
+                    {
+                        <!-- MANTENIMIENTOS -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Mantenimientos
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Página Principal", "ListaPaginaPrincipal", "Pagina", null, new { @class = "dropdown-item" })</li>
+                                <li>@Html.ActionLink("Productos", "ListaProductos", "Productos", null, new { @class = "dropdown-item" })</li>
+                                <li>@Html.ActionLink("Servicios", "ListaServicios", "Servicios", null, new { @class = "dropdown-item" })</li>
+                            </ul>
+                        </li>
+
+                        <!-- CONTACTO -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Contacto
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Cotizaciones", "ListaContacto", "Contacto", null, new { @class = "dropdown-item" })</li>
+                                <li>@Html.ActionLink("Respuestas", "ListaParaRespuestas", "Respuestas", null, new { @class = "dropdown-item" })</li>
+                            </ul>
+                        </li>
+
+                        <!-- REPORTES -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Reportes
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Reporte Servicios", "ReporteServicios", "Reportes", null, new { @class = "dropdown-item" })</li>
+                                <li>@Html.ActionLink("Reporte Productos", "ReporteProductos", "Reportes", null, new { @class = "dropdown-item" })</li>
+                            </ul>
+                        </li>
+
+                        <!-- SEGURIDAD -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Seguridad
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Usuarios", "ListaUsuarios", "Usuario", null, new { @class = "dropdown-item" })</li>
+                                <li>@Html.ActionLink("Permisos", "ListaUsuarios", "Usuario", null, new { @class = "dropdown-item" })</li>
+
+                            </ul>
+                        </li>
+
+                        <!-- AYUDA -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Ayuda
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Manual del Usuario", "ManualUsuario", "Ayuda", null, new { @class = "dropdown-item" })</li>
+                                <li>@Html.ActionLink("Versión", "Version", "Ayuda", null, new { @class = "dropdown-item" })</li>
+                            </ul>
+                        </li>
+                    }
+                </ul>
+
+                <!-- USUARIO -->
+                <ul class="navbar-nav ms-auto">
+                    @if (Session["Usuario"] != null)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-light" href="#" id="usuarioDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                👤 @Session["Usuario"]
+                            </a>
+
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="usuarioDropdown">
+
+                                <li>
+                                <li>@Html.ActionLink("Cambiar Contraseña", "CambiarContrasena", "Ayuda", null, new { @class = "dropdown-item" })</li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li>
+                                    @Html.ActionLink("Cerrar sesión", "Logout", "Administrador", null, new { @class = "dropdown-item text-danger fw-bold" })
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            @Html.ActionLink("Iniciar sesión", "SignIn", "Administrador", null, new { @class = "nav-link text-success fw-bold" })
+                        </li>
+                    }
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- CONTENIDO -->
+    <div class="container body-content mt-5 pt-4">
+        @RenderBody()
+        <hr />
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="text-muted">
+        <p class="mb-0">&copy; @DateTime.Now.Year - Sistema CSSMY | Panel Administrativo</p>
+    </footer>
+
+
+    <script src="~/Scripts/bootstrap.bundle.min.js"></script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+
+<script>
+    // 2 minutos = 120000 ms
+    setTimeout(function () {
+        window.location.href = '/Administrador/SignIn';
+    }, 120000);
+</script>

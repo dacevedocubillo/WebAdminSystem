@@ -1,0 +1,30 @@
+﻿@model CSMMYM.Models.Servicio
+
+
+@{
+    ViewBag.Title = "Detalle de Servicio";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/bootstrap.css" />
+<link rel="stylesheet" href="~/Content/css/site-user.css" />
+
+
+<section class="servicio-detalle container py-5">
+    <div class="row">
+        <div class="col-md-8">
+            <h1 class="text-danger">@Model.nombre</h1>
+            @using System.Globalization
+            <p><strong>Costo:</strong> @Convert.ToDecimal(Model.precio_base).ToString("C", new CultureInfo("es-CR"))</p>
+        </div>
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">¿Interesado?</h5>
+                    <p class="card-text">Contáctanos para más información o para contratar este servicio.</p>
+                    <a href="@Url.Action("Contacto","Contacto")" class="btn btn-primary">Solicitar información</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

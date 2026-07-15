@@ -1,0 +1,123 @@
+﻿@{
+    ViewBag.Title = "Inicio";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/bootstrap.css" />
+<link rel="stylesheet" href="~/Content/css/site-user.css" />
+
+
+<div class="jumbotron text-center bg-light py-5">
+    <h1 class="display-4">
+        @(ViewBag.Principal != null ? ViewBag.Principal.titulo : "Bienvenido a CSSMY")
+    </h1>
+    <p class="lead">
+        @(ViewBag.Principal != null ? ViewBag.Principal.contenido : "Soluciones en montacargas, alquiler y mantenimiento para tu empresa.")
+    </p>
+    <a href="@Url.Action("Catalogo", "Productos")" class="btn btn-primary btn-lg mt-3">Explorar catálogo</a>
+</div>
+
+<hr />
+
+<section class="mt-5">
+    <h2 class="text-center mb-4">Productos destacados</h2>
+    <div class="row">
+        @if (ViewBag.ProductosDestacados != null)
+        {
+            foreach (var item in ViewBag.ProductosDestacados as IEnumerable<CSMMYM.Models.Select_Producto_Result>)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        @if (!string.IsNullOrEmpty(item.imagen))
+                        {
+                            <img src="~/Content/Imagenes/@item.imagen" class="card-img-top" alt="@item.nombre" />
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@item.nombre</h5>
+                            <p class="card-text">@item.descripcion</p>
+                        </div>
+                        <div class="card-footer text-center">
+                            <strong>₡@Convert.ToDecimal(item.precio).ToString("N2")</strong><br />
+                            @Html.ActionLink("Ver detalles", "Detalle", "Productos", new { id = item.id_producto }, new { @class = "btn btn-outline-primary btn-sm mt-2" })
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="text-center">No hay productos destacados disponibles en este momento.</p>
+        }
+    </div>
+</section>
+
+<hr />
+
+<section class="mt-5">
+    <h2 class="text-center mb-4">Novedades</h2>
+
+    <div class="container">
+        @if (ViewBag.Novedades != null)
+        {
+            <div class="alert alert-info shadow-sm">
+                <h4>@ViewBag.Novedades.titulo</h4>
+                <p>@Html.Raw(ViewBag.Novedades.contenido)</p>
+            </div>
+        }
+        else
+        {
+            <p class="text-center text-muted">
+                No hay novedades disponibles en este momento. ¡Vuelve pronto!
+            </p>
+        }
+    </div>
+</section>
+
+<hr />
+
+
+<hr />
+
+<section class="mt-5">
+    <h2 class="text-center mb-4">Nuestra Historia</h2>
+
+    <div class="container">
+        @if (ViewBag.Historia != null)
+        {
+            <div class="alert alert-secondary shadow-sm p-4">
+                <p class="mt-3">
+                    @Html.Raw(ViewBag.Historia.contenido)
+                </p>
+            </div>
+        }
+        else
+        {
+            <p class="lead">
+                La sección <strong>Historia</strong> no está disponible en este momento.
+            </p>
+        }
+    </div>
+</section>
+
+<hr />
+
+
+<section class="sobre-nosotros mt-5">
+    <div class="container text-center">
+        <h2 class="mb-4">Sobre nosotros</h2>
+        <p class="lead">
+            Somos una empresa dedicada a brindar soluciones en montacargas, alquiler y mantenimiento,
+            con años de experiencia en el mercado costarricense.
+        </p>
+        <a href="@Url.Action("QuienesSomos","QuienesSomos")" class="btn btn-outline-primary mt-3">
+            Conócenos
+        </a>
+    </div>
+</section>
+
+<script>
+    // Recarga la página cada 15 segundos
+    setInterval(function () {
+        location.reload();
+    }, 15000);
+</script>

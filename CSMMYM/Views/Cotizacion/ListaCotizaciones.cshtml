@@ -1,0 +1,39 @@
+﻿@model IEnumerable<CSMMYM.Models.Cotizacion>
+
+
+@{
+    ViewBag.Title = "Cotizaciones";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>Cotizaciones</h2>
+
+<a href="@Url.Action("Crear", "Cotizacion")" class="btn btn-primary mb-3">Nueva Cotización</a>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Cliente</th>
+            <th>Correo</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var c in Model)
+        {
+            <tr>
+                <td>@c.id_cotizacion</td>
+                <td>@c.nombre</td>
+                <td>@c.correo</td>
+                <td>@c.fecha_creacion.ToString("dd/MM/yyyy")</td>
+                <td>@c.estado</td>
+                <td>
+                    @Html.ActionLink("Ver", "Detalle", "Cotizacion", new { id = c.id_cotizacion }, new { @class = "btn btn-info btn-sm" })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

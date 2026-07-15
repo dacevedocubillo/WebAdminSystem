@@ -1,0 +1,104 @@
+﻿@model IEnumerable<CSMMYM.Models.Reporte_Productos_Result>
+
+@{
+    ViewBag.Title = "ReporteProductos";
+}
+
+<h2 class="mb-4">
+    <i class="fas fa-box-open me-2 text-primary"></i> Reporte de Productos
+</h2>
+
+<!-- Botón para descargar reporte -->
+<a href="@Url.Action("DescargarReporteProductosPDF","Reportes")"
+   class="btn btn-success mb-3 btn-download">
+    <i class="fas fa-file-pdf me-2"></i> Descargar Reporte
+</a>
+
+<div class="table-responsive">
+    <table class="table table-bordered table-striped align-middle shadow-sm">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.id_producto</td>
+                    <td>@item.nombre</td>
+                    <td>₡@item.precio.ToString("N2")</td>
+                    <td>@item.tipo</td>
+                    <td>
+                        @if (item.estado == "Disponible")
+                        {
+                            <span class="badge bg-success">
+                                <i class="fas fa-check-circle me-1"></i> Disponible
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">
+                                <i class="fas fa-times-circle me-1"></i> No disponible
+                            </span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- FontAwesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+
+<!-- CSS personalizado -->
+<style>
+    h2 {
+        font-weight: 700;
+        color: #343a40;
+        border-bottom: 3px solid #007bff;
+        display: inline-block;
+        padding-bottom: 0.3rem;
+    }
+
+    .btn-download {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        font-weight: 600;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-download:hover {
+            background: linear-gradient(135deg, #20c997, #28a745);
+            transform: translateY(-2px);
+        }
+
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+        .table thead {
+            background: linear-gradient(135deg, #343a40, #495057);
+            color: #ffc107;
+            font-weight: 600;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+            transition: background-color 0.2s ease;
+        }
+
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.4em 0.7em;
+        border-radius: 8px;
+    }
+</style>

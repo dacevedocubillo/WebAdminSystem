@@ -1,0 +1,70 @@
+﻿@model CSMMYM.Models.RetornaServicio_ID_Result
+
+@{
+    ViewBag.Title = "EditarServicio";
+}
+
+<h2>✏️ Editar Servicio</h2>
+
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+@if (ViewBag.MensajeError != null)
+{
+    <div class="alert alert-danger">
+        @ViewBag.MensajeError
+    </div>
+}
+
+@using (Html.BeginForm("EditarServicio", "Servicios", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.AntiForgeryToken()
+
+    @Html.HiddenFor(m => m.id_servicio)
+    <!-- ❌ Eliminado el HiddenFor de imagen -->
+
+    <!-- NOMBRE -->
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.nombre)
+        @Html.TextBoxFor(m => m.nombre, new { @class = "form-control", placeholder = "Nombre del servicio" })
+    </div>
+
+    <!-- TIPO -->
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.tipo, "Tipo de Servicio")
+        @Html.DropDownListFor(m => m.tipo, new SelectList(new[] {
+            "Mantenimiento","Alquiler"
+        }, Model.tipo), "Seleccione un tipo", new { @class = "form-control" })
+    </div>
+
+    <!-- PRECIO -->
+    <div class="form-group mb-3">
+        @Html.LabelFor(m => m.precio_base)
+        @Html.TextBoxFor(m => m.precio_base, new { @class = "form-control", type = "number", step = "0.01" })
+    </div>
+
+    <!-- IMAGEN -->
+<div class="form-group mb-3">
+    <label>Imagen actual</label><br />
+    @if (!string.IsNullOrEmpty(Model.imagen))
+    {
+        <img src="~/Content/Imagenes/@Model.imagen" alt="Foto actual" class="img-thumbnail mb-2" style="max-width:150px;" />
+    }
+    else
+    {
+        <span class="text-muted">Sin imagen</span>
+    }
+
+    <br />
+    <label for="archivoImagen">Cambiar imagen</label>
+    <input type="file" name="archivoImagen" class="form-control" accept="image/*" />
+</div>
+
+    <hr />
+
+    <button type="submit" class="btn btn-success">
+        💾 Guardar cambios
+    </button>
+
+    @Html.ActionLink("Volver a la lista", "ListaServicios", "Servicios",
+                    null, new { @class = "btn btn-secondary ms-2" })
+}

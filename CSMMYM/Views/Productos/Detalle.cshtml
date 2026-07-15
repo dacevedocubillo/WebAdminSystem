@@ -1,0 +1,31 @@
+﻿@model CSMMYM.Models.Producto
+@using System.Globalization
+
+@{
+    ViewBag.Title = "Detalle de Producto";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<section class="producto-detalle container py-5">
+    <div class="row">
+        <!-- Columna izquierda: datos del producto -->
+        <div class="col-md-8">
+            <h1 class="text-danger">@Model.nombre</h1>
+            <p class="lead">@Model.descripcion</p>
+            <p><strong>Precio:</strong> @Convert.ToDecimal(Model.precio).ToString("C", new CultureInfo("es-CR"))</p>
+
+            <a href="@Url.Action("Electrico","Productos")" class="btn btn-outline-secondary mt-3">Volver al catálogo</a>
+        </div>
+
+        <!-- Columna derecha: bloque de contacto -->
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-danger">¿Interesado?</h5>
+                    <p class="card-text">Contáctanos para más información o para adquirir este producto.</p>
+                    <a href="@Url.Action("Contacto","Contacto")" class="btn btn-danger btn-lg">Solicitar información</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,37 @@
+﻿@model IEnumerable<CSMMYM.Models.Select_Producto_Result>
+
+
+
+@{
+    ViewBag.Title = "Productos";
+    Layout = "~/Views/Shared/_UserLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/Content/bootstrap.css" />
+<link rel="stylesheet" href="~/Content/css/site-user.css" />
+
+
+<h2>Montacargas Diésel</h2>
+<p>Descubre nuestros montacargas diésel, ideales para trabajos pesados y exteriores.</p>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                @if (!string.IsNullOrEmpty(item.imagen))
+                {
+                    <img src="~/Content/Imagenes/@item.imagen" class="card-img-top" alt="@item.nombre" />
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@item.nombre</h5>
+                    <p class="card-text">@item.descripcion</p>
+                </div>
+                <div class="card-footer text-center">
+                    <strong>₡@item.precio.ToString("N2")</strong><br />
+                    <a href="@Url.Action("Detalle", "Productos", new { id = item.id_producto })" class="btn btn-primary mt-2">Ver detalle</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,190 @@
+﻿@model CSMMYM.Models.Cotizacion
+
+@{
+    ViewBag.Title = "Detalle de Cotización";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Cotización #@Model.id_cotizacion</h2>
+
+
+<a href="@Url.Action("Descargar", "Cotizacion", new { id = Model.id_cotizacion })"
+   class="btn btn-success mb-3">
+    Descargar PDF
+</a>
+
+<div class="card p-3 mb-4">
+    <h4>Datos del Cliente</h4>
+    <p><strong>Nombre:</strong> @Model.nombre</p>
+    <p><strong>Correo:</strong> @Model.correo</p>
+    <p><strong>Descripción:</strong> @Model.detalle</p>
+    <p><strong>Fecha:</strong> @Model.fecha_creacion.ToString("dd/MM/yyyy HH:mm")</p>
+
+    <p><strong>Estado actual:</strong> @Model.estado</p>
+
+    <!-- ⭐ FORMULARIO PARA CAMBIAR EL ESTADO -->
+    <form method="post" action="@Url.Action("CambiarEstado", "Cotizacion")" class="mt-2">
+        <input type="hidden" name="id" value="@Model.id_cotizacion" />
+
+        <select name="estado" class="form-control d-inline-block w-auto">
+            <option value="Pendiente" @(Model.estado == "Pendiente" ? "selected" : "")>Pendiente</option>
+            <option value="Enviada" @(Model.estado == "Enviada" ? "selected" : "")>Enviada</option>
+            <option value="Aprobada" @(Model.estado == "Aprobada" ? "selected" : "")>Aprobada</option>
+            <option value="Rechazada" @(Model.estado == "Rechazada" ? "selected" : "")>Rechazada</option>
+        </select>
+
+        <button class="btn btn-success btn-sm">Cambiar</button>
+    </form>
+    <!-- ⭐ FIN DEL FORMULARIO -->
+</div>
+
+<h3>Ítems de la Cotización</h3>
+
+<a href="@Url.Action("AgregarDetalle", "Cotizacion", new { id = Model.id_cotizacion })"
+   class="btn btn-primary mb-3">
+    Agregar Ítem
+</a>
+
+@if (Model.Detalle_Cotizacion.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Producto / Servicio</th>
+                <th>Cantidad</th>
+                <th>Duración</th>
+                <th>Precio Unitario</th>
+                <th>Total</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Detalle_Cotizacion)
+            {
+                <tr>
+                    <td>
+                        @if (item.Producto != null)
+                        {
+                            @item.Producto.nombre
+                        }
+                        else if (item.Servicio != null)
+                        {
+                            @item.Servicio.nombre
+                        }
+                        else
+                        {
+                            <span class="text-muted">Sin asignar</span>
+                        }
+                    </td>
+
+                    <td>@item.cantidad</td>
+                    <td>@item.duracion</td>
+                    <td>@item.precio_unitario.ToString("C")</td>
+                    <td>@((item.cantidad * item.precio_unitario).ToString("C"))</td>
+                    <td>
+                        <a href="@Url.Action("EliminarDetalle", "Cotizacion", new { id = item.id_detalle })"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirm('¿Seguro que deseas eliminar este ítem?');">
+                            Eliminar
+                        </a>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hay ítems en esta cotización.</p>
+}
+
+<!-- CSS personalizado -->
+<style>
+    /* 🔹 Título principal */
+    h2 {
+        font-weight: 700;
+        color: #343a40;
+        border-bottom: 3px solid #ffc107;
+        display: inline-block;
+        padding-bottom: 0.3rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* 🔹 Card de cliente */
+    .card {
+        border: none;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #f8f9fa, #ffffff);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+        .card h4 {
+            color: #007bff;
+            font-weight: 600;
+        }
+
+    /* 🔹 Botón Descargar PDF */
+    .btn-success {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        border: none;
+        font-weight: 600;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #20c997, #28a745);
+            transform: translateY(-2px);
+        }
+
+    /* 🔹 Botón Agregar Ítem */
+    .btn-primary {
+        background: linear-gradient(135deg, #007bff, #0dcaf0);
+        border: none;
+        font-weight: 600;
+        border-radius: 30px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0dcaf0, #007bff);
+            transform: translateY(-2px);
+        }
+
+    /* 🔹 Botón Eliminar */
+    .btn-danger {
+        background: linear-gradient(135deg, #dc3545, #ff6b6b);
+        border: none;
+        font-weight: 600;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #ff6b6b, #dc3545);
+            transform: translateY(-2px);
+        }
+
+    /* 🔹 Tabla */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+        .table thead {
+            background: linear-gradient(135deg, #343a40, #495057);
+            color: #ffc107;
+            font-weight: 600;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+            transition: background-color 0.2s ease;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #fdfdfd;
+        }
+</style>
