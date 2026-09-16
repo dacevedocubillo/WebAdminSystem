@@ -1,6 +1,5 @@
-﻿using CSMMYM.Models;
+using CSMMYM.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -10,207 +9,161 @@ namespace CSMMYM.Controllers
 {
     public class ProductosController : Controller
     {
+        private readonly CSMMYMEntities modeloBD = new CSMMYMEntities();
 
-        CSMMYMEntities modeloBD = new CSMMYMEntities();
-
-
-        public ActionResult ListaProductos()
+        private bool PuedeAdministrarProductos()
         {
-            if (Session["id_usuario"] == null)
-            {
-                return RedirectToAction("SignIn", "Administrador");
-            }
-
-            int idUsuario = (int)Session["id_usuario"];
-
-            if (!PermisosPorUsuario.Lista.ContainsKey(idUsuario) ||
-                !PermisosPorUsuario.Lista[idUsuario].AccesoProductos)
-            {
-                return RedirectToAction("SinPermiso", "Usuario");
-            }
-
-            var modeloVista = modeloBD.Select_Producto().ToList();
-            return View(modeloVista);
+            if (!(Session["id_usuario"] is int idUsuario)) return false;
+            return PermisosPorUsuario.Lista.ContainsKey(idUsuario) &&
+                   PermisosPorUsuario.Lista[idUsuario].AccesoProductos;
         }
 
+        private ActionResult SinAcceso()
+        {
+            return Session["id_usuario"] == null
+                ? (ActionResult)RedirectToAction("SignIn", "Administrador")
+                : RedirectToAction("SinPermiso", "Usuario");
+        }
 
+        [Authorize]
+        public ActionResult ListaProductos()
+        {
+            if (!PuedeAdministrarProductos()) return SinAcceso();
+            return View(modeloBD.Select_Producto().ToList());
+        }
 
-        // GET: Productos
-
-
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult CrearProducto()
         {
+            if (!PuedeAdministrarProductos()) return SinAcceso();
             return View();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, Authorize, ValidateAntiForgeryToken]
         public ActionResult CrearProducto(Select_Producto_Result modeloVista, HttpPostedFileBase imagen)
         {
-            if (!ModelState.IsValid)
-            {
-                TempData["MensajeError"] = "⚠️ Datos inválidos, revise el formulario.";
-                return View(modeloVista);
-            }
+            if (!PuedeAdministrarProductos()) return SinAcceso();
+            if (!ModelState.IsValid) return View(modeloVista);
 
             try
             {
-                string nombreArchivo = null;
-
-                if (imagen != null && imagen.ContentLength > 0)
-                {
-                    string carpeta = Server.MapPath("~/Content/Imagenes");
-                    nombreArchivo = Path.GetFileName(imagen.FileName);
-                    string rutaCompleta = Path.Combine(carpeta, nombreArchivo);
-
-                    // Guardar archivo en el servidor
-                    imagen.SaveAs(rutaCompleta);
-                }
-
-                int cantidadRegistrosAfectados = modeloBD.Insert_Producto(
-                    modeloVista.nombre,
-                    modeloVista.tipo,
-                    modeloVista.precio,
-                    modeloVista.descripcion,
-                    modeloVista.estado,
-                    nombreArchivo
-                );
-
-                if (cantidadRegistrosAfectados > 0)
-                {
-                    TempData["MensajeExito"] = "✅ Producto registrado correctamente.";
-                    return RedirectToAction("ListaProductos"); // asegúrate de que esta acción exista
-                }
-
-                TempData["MensajeError"] = "⚠️ No se pudo insertar el registro.";
-                return View(modeloVista);
-            }
-            catch (Exception ex)
-            {
-                TempData["MensajeError"] = "❌ Ocurrió un error inesperado: " + ex.Message;
-                return View(modeloVista);
-            }
-        }
-
-
-
-        [HttpGet]
-        public ActionResult EditarProducto(int id_producto)
-        {
-            var producto = modeloBD.RetornaProducto_ID(id_producto).FirstOrDefault();
-
-            if (producto == null)
-            {
-                TempData["MensajeError"] = "❌ Producto no encontrado.";
-                return RedirectToAction("ListaProductos");
-            }
-
-            return View(producto);
-        }
-
-
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EditarProducto(RetornaProducto_ID_Result modelo, HttpPostedFileBase imagen)
-        {
-            if (!ModelState.IsValid)
-            {
-                ViewBag.MensajeError = "⚠️ Datos inválidos, revise el formulario.";
-                return View(modelo);
-            }
-
-            try
-            {
-                string nombreArchivo = modelo.imagen; // mantener la imagen actual por defecto
-
-                if (imagen != null && imagen.ContentLength > 0)
-                {
-                    string carpeta = Server.MapPath("~/Content/Imagenes");
-                    nombreArchivo = Path.GetFileName(imagen.FileName);
-                    string rutaCompleta = Path.Combine(carpeta, nombreArchivo);
-
-                    // Guardar archivo en el servidor
-                    imagen.SaveAs(rutaCompleta);
-                }
-
-                var resultado = modeloBD.ProductoUpdate(
-                    modelo.id_producto,
-                    modelo.nombre,
-                    modelo.tipo,
-                    modelo.precio,
-                    modelo.descripcion,
-                    nombreArchivo // ahora sí guardamos la nueva imagen o mantenemos la anterior
-                );
+                var nombreArchivo = GuardarImagen(imagen, null);
+                var resultado = modeloBD.Insert_Producto(modeloVista.nombre, modeloVista.tipo,
+                    modeloVista.precio, modeloVista.descripcion, modeloVista.estado, nombreArchivo);
 
                 if (resultado > 0)
                 {
-                    TempData["MensajeExito"] = "✅ Producto actualizado correctamente.";
+                    TempData["MensajeExito"] = "Producto registrado correctamente.";
                     return RedirectToAction("ListaProductos");
                 }
 
-                ViewBag.MensajeError = "⚠️ No se realizaron cambios.";
-                return View(modelo);
+                TempData["MensajeError"] = "No se pudo registrar el producto.";
             }
-            catch (Exception ex)
+            catch (InvalidOperationException ex)
             {
-                ViewBag.MensajeError = "❌ Error al actualizar: " + ex.Message;
-                return View(modelo);
+                ModelState.AddModelError("imagen", ex.Message);
             }
+            catch (Exception)
+            {
+                TempData["MensajeError"] = "Ocurrió un error al registrar el producto.";
+            }
+
+            return View(modeloVista);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult EditarProducto(int id_producto)
+        {
+            if (!PuedeAdministrarProductos()) return SinAcceso();
+            var producto = modeloBD.RetornaProducto_ID(id_producto).FirstOrDefault();
+            if (producto == null) return HttpNotFound();
+            return View(producto);
+        }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, Authorize, ValidateAntiForgeryToken]
+        public ActionResult EditarProducto(RetornaProducto_ID_Result modelo, HttpPostedFileBase imagen)
+        {
+            if (!PuedeAdministrarProductos()) return SinAcceso();
+            if (!ModelState.IsValid) return View(modelo);
+
+            try
+            {
+                var nombreArchivo = GuardarImagen(imagen, modelo.imagen);
+                var resultado = modeloBD.ProductoUpdate(modelo.id_producto, modelo.nombre, modelo.tipo,
+                    modelo.precio, modelo.descripcion, nombreArchivo);
+
+                if (resultado > 0)
+                {
+                    TempData["MensajeExito"] = "Producto actualizado correctamente.";
+                    return RedirectToAction("ListaProductos");
+                }
+
+                ViewBag.MensajeError = "No se realizaron cambios.";
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("imagen", ex.Message);
+            }
+            catch (Exception)
+            {
+                ViewBag.MensajeError = "Ocurrió un error al actualizar el producto.";
+            }
+
+            return View(modelo);
+        }
+
+        [HttpPost, Authorize, ValidateAntiForgeryToken]
         public ActionResult DeshabilitarProducto(int id)
         {
+            if (!PuedeAdministrarProductos()) return SinAcceso();
             modeloBD.sp_DeshabilitarProducto(id);
             TempData["MensajeExito"] = "Producto deshabilitado correctamente.";
             return RedirectToAction("ListaProductos");
         }
 
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, Authorize, ValidateAntiForgeryToken]
         public ActionResult HabilitarProducto(int id)
         {
+            if (!PuedeAdministrarProductos()) return SinAcceso();
             modeloBD.sp_HabilitarProducto(id);
             TempData["MensajeExito"] = "Producto habilitado correctamente.";
             return RedirectToAction("ListaProductos");
         }
 
+        [AllowAnonymous]
+        public ActionResult Electrico() => View(modeloBD.Select_Producto().Where(p => p.estado == "activo" && p.tipo == "Eléctrico").ToList());
 
-        public ActionResult Electrico()
-        {
-            var productos = modeloBD.Select_Producto()
-                                    .Where(p => p.estado == "activo" && p.tipo == "Eléctrico")
-                                    .ToList();
-            return View(productos); // Vista Catalogo.cshtml
-        }
+        [AllowAnonymous]
+        public ActionResult Diesel() => View(modeloBD.Select_Producto().Where(p => p.estado == "activo" && p.tipo == "Diésel").ToList());
 
-        public ActionResult Diesel()
-        {
-            var productos = modeloBD.Select_Producto()
-                                    .Where(p => p.estado == "activo" && p.tipo == "Diésel")
-                                    .ToList();
-            return View(productos); // Vista Diesel.cshtml
-        }
-
-        // GET: Productos/Detalle/5
+        [AllowAnonymous]
         public ActionResult Detalle(int id)
         {
-            var producto = modeloBD.Producto.FirstOrDefault(p => p.id_producto == id);
-            if (producto == null)
-            {
-                return HttpNotFound();
-            }
-            return View(producto);
+            var producto = modeloBD.Producto.FirstOrDefault(p => p.id_producto == id && p.estado == "activo");
+            return producto == null ? (ActionResult)HttpNotFound() : View(producto);
         }
 
+        private string GuardarImagen(HttpPostedFileBase imagen, string actual)
+        {
+            if (imagen == null || imagen.ContentLength <= 0) return actual;
+            if (imagen.ContentLength > 5 * 1024 * 1024) throw new InvalidOperationException("La imagen no puede superar 5 MB.");
 
+            var extension = Path.GetExtension(imagen.FileName)?.ToLowerInvariant();
+            var permitidas = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            if (string.IsNullOrEmpty(extension) || !permitidas.Contains(extension))
+                throw new InvalidOperationException("Formato de imagen no permitido. Use JPG, PNG o WEBP.");
 
+            var carpeta = Server.MapPath("~/Content/Imagenes");
+            Directory.CreateDirectory(carpeta);
+            var nombre = Guid.NewGuid().ToString("N") + extension;
+            imagen.SaveAs(Path.Combine(carpeta, nombre));
+            return nombre;
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) modeloBD.Dispose();
+            base.Dispose(disposing);
+        }
     }
 }

@@ -1,6 +1,5 @@
-﻿using CSMMYM.Models;
+using CSMMYM.Models;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -10,202 +9,132 @@ namespace CSMMYM.Controllers
 {
     public class ServiciosController : Controller
     {
+        private readonly CSMMYMEntities modeloBD = new CSMMYMEntities();
 
-        CSMMYMEntities modeloBD = new CSMMYMEntities();
-
-
-
-        public ActionResult ListaServicios()
+        private bool PuedeAdministrar()
         {
-            if (Session["id_usuario"] == null)
-            {
-                return RedirectToAction("SignIn", "Administrador");
-            }
-
-            int idUsuario = (int)Session["id_usuario"];
-
-            if (!PermisosPorUsuario.Lista.ContainsKey(idUsuario) ||
-                !PermisosPorUsuario.Lista[idUsuario].AccesoProductos)
-            {
-                return RedirectToAction("SinPermiso", "Usuario");
-            }
-
-            var modeloVista = modeloBD.Select_Servicio().ToList();
-            return View(modeloVista);
+            if (!(Session["id_usuario"] is int idUsuario)) return false;
+            return PermisosPorUsuario.Lista.ContainsKey(idUsuario) && PermisosPorUsuario.Lista[idUsuario].AccesoProductos;
         }
 
+        private ActionResult SinAcceso() => Session["id_usuario"] == null
+            ? (ActionResult)RedirectToAction("SignIn", "Administrador")
+            : RedirectToAction("SinPermiso", "Usuario");
 
-        // GET: Servicios
+        [Authorize]
+        public ActionResult ListaServicios()
+        {
+            if (!PuedeAdministrar()) return SinAcceso();
+            return View(modeloBD.Select_Servicio().ToList());
+        }
 
-        [HttpGet]
+        [HttpGet, Authorize]
         public ActionResult CrearServicios()
         {
+            if (!PuedeAdministrar()) return SinAcceso();
             return View();
         }
 
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, Authorize, ValidateAntiForgeryToken]
         public ActionResult CrearServicios(Select_Servicio_Result modeloVista, HttpPostedFileBase imagen)
         {
-            if (!ModelState.IsValid)
-            {
-                TempData["MensajeError"] = "⚠️ Datos inválidos, revise el formulario.";
-                return View(modeloVista);
-            }
+            if (!PuedeAdministrar()) return SinAcceso();
+            if (!ModelState.IsValid) return View(modeloVista);
 
             try
             {
-                string nombreArchivo = null;
-
-                if (imagen != null && imagen.ContentLength > 0)
-                {
-                    string carpeta = Server.MapPath("~/Content/Imagenes");
-                    nombreArchivo = Path.GetFileName(imagen.FileName);
-                    string rutaCompleta = Path.Combine(carpeta, nombreArchivo);
-
-                    // Guardar archivo en el servidor
-                    imagen.SaveAs(rutaCompleta);
-                }
-
-                int cantidadRegistrosAfectados = modeloBD.Insert_Servicio(
-                    modeloVista.nombre,
-                    modeloVista.tipo,
-                    modeloVista.precio_base,
-                    modeloVista.estado,
-                    nombreArchivo // CORREGIDO: antes se usaba modeloVista.imagen
-                );
-
-                if (cantidadRegistrosAfectados > 0)
-                {
-                    TempData["MensajeExito"] = "✅ Servicio registrado correctamente.";
-                    return RedirectToAction("ListaServicios"); // asegúrate de que esta acción exista
-                }
-
-                TempData["MensajeError"] = "⚠️ No se pudo insertar el registro.";
-                return View(modeloVista);
-            }
-            catch (Exception ex)
-            {
-                TempData["MensajeError"] = "❌ Ocurrió un error inesperado: " + ex.Message;
-                return View(modeloVista);
-            }
-        }
-
-
-        [HttpGet]
-        public ActionResult EditarServicio(int id_servicio)
-        {
-            var servicio = modeloBD.RetornaServicio_ID(id_servicio).FirstOrDefault();
-
-            if (servicio == null)
-            {
-                TempData["MensajeError"] = "❌ Servicio no encontrado.";
-                return RedirectToAction("ListaServicios");
-            }
-
-            return View(servicio);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult EditarServicio(RetornaServicio_ID_Result modelo, HttpPostedFileBase archivoImagen)
-        {
-            if (!ModelState.IsValid)
-            {
-                ViewBag.MensajeError = "⚠️ Datos inválidos, revise el formulario.";
-                return View(modelo);
-            }
-
-            try
-            {
-                // Mantener la imagen actual por defecto
-                string nombreArchivo = modelo.imagen;
-
-                // Si se sube una nueva imagen, reemplazar
-                if (archivoImagen != null && archivoImagen.ContentLength > 0)
-                {
-                    string carpeta = Server.MapPath("~/Content/Imagenes");
-                    nombreArchivo = Path.GetFileName(archivoImagen.FileName);
-                    string rutaCompleta = Path.Combine(carpeta, nombreArchivo);
-
-                    archivoImagen.SaveAs(rutaCompleta);
-                }
-
-                var resultado = modeloBD.ServicioUpdate(
-                    modelo.id_servicio,
-                    modelo.nombre,
-                    modelo.tipo,
-                    modelo.precio_base,
-                    nombreArchivo // ✅ se guarda la nueva o se mantiene la anterior
-                );
-
+                var nombreArchivo = GuardarImagen(imagen, null);
+                var resultado = modeloBD.Insert_Servicio(modeloVista.nombre, modeloVista.tipo, modeloVista.precio_base, modeloVista.estado, nombreArchivo);
                 if (resultado > 0)
                 {
-                    TempData["MensajeExito"] = "✅ Servicio actualizado correctamente.";
+                    TempData["MensajeExito"] = "Servicio registrado correctamente.";
                     return RedirectToAction("ListaServicios");
                 }
-
-                ViewBag.MensajeError = "⚠️ No se realizaron cambios.";
-                return View(modelo);
+                TempData["MensajeError"] = "No se pudo registrar el servicio.";
             }
-            catch (Exception ex)
-            {
-                ViewBag.MensajeError = "❌ Error al actualizar: " + ex.Message;
-                return View(modelo);
-            }
+            catch (InvalidOperationException ex) { ModelState.AddModelError("imagen", ex.Message); }
+            catch (Exception) { TempData["MensajeError"] = "Ocurrió un error al registrar el servicio."; }
+            return View(modeloVista);
         }
 
+        [HttpGet, Authorize]
+        public ActionResult EditarServicio(int id_servicio)
+        {
+            if (!PuedeAdministrar()) return SinAcceso();
+            var servicio = modeloBD.RetornaServicio_ID(id_servicio).FirstOrDefault();
+            return servicio == null ? (ActionResult)HttpNotFound() : View(servicio);
+        }
 
+        [HttpPost, Authorize, ValidateAntiForgeryToken]
+        public ActionResult EditarServicio(RetornaServicio_ID_Result modelo, HttpPostedFileBase archivoImagen)
+        {
+            if (!PuedeAdministrar()) return SinAcceso();
+            if (!ModelState.IsValid) return View(modelo);
+            try
+            {
+                var nombreArchivo = GuardarImagen(archivoImagen, modelo.imagen);
+                var resultado = modeloBD.ServicioUpdate(modelo.id_servicio, modelo.nombre, modelo.tipo, modelo.precio_base, nombreArchivo);
+                if (resultado > 0)
+                {
+                    TempData["MensajeExito"] = "Servicio actualizado correctamente.";
+                    return RedirectToAction("ListaServicios");
+                }
+                ViewBag.MensajeError = "No se realizaron cambios.";
+            }
+            catch (InvalidOperationException ex) { ModelState.AddModelError("archivoImagen", ex.Message); }
+            catch (Exception) { ViewBag.MensajeError = "Ocurrió un error al actualizar el servicio."; }
+            return View(modelo);
+        }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, Authorize, ValidateAntiForgeryToken]
         public ActionResult DeshabilitarServicio(int id)
         {
+            if (!PuedeAdministrar()) return SinAcceso();
             modeloBD.sp_DeshabilitarServicio(id);
             TempData["MensajeExito"] = "Servicio deshabilitado correctamente.";
             return RedirectToAction("ListaServicios");
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
+        [HttpPost, Authorize, ValidateAntiForgeryToken]
         public ActionResult HabilitarServicio(int id)
         {
+            if (!PuedeAdministrar()) return SinAcceso();
             modeloBD.sp_HabilitarServicio(id);
-            TempData["MensajeExito"] = "Servicio deshabilitado correctamente.";
+            TempData["MensajeExito"] = "Servicio habilitado correctamente.";
             return RedirectToAction("ListaServicios");
         }
 
+        [AllowAnonymous]
+        public ActionResult Alquiler() => View(modeloBD.Select_Servicio().Where(s => s.estado == "activo" && s.tipo == "Alquiler").ToList());
 
-        public ActionResult Alquiler()
-        {
-            var servicios = modeloBD.Select_Servicio()
-                                    .Where(s => s.estado == "activo" && s.tipo == "Alquiler")
-                                    .ToList();
-            return View(servicios); // Vista Alquiler.cshtml
-        }
+        [AllowAnonymous]
+        public ActionResult Mantenimiento() => View(modeloBD.Select_Servicio().Where(s => s.estado == "activo" && s.tipo == "Mantenimiento").ToList());
 
-        public ActionResult Mantenimiento()
-        {
-            var servicios = modeloBD.Select_Servicio()
-                                    .Where(s => s.estado == "activo" && s.tipo == "Mantenimiento")
-                                    .ToList();
-            return View(servicios); // Vista Mantenimiento.cshtml
-        }
-
-
-        // GET: Servicios/Detalle/5
+        [AllowAnonymous]
         public ActionResult Detalle(int id)
         {
-            var servicio = modeloBD.Servicio.FirstOrDefault(s => s.id_servicio == id);
-            if (servicio == null)
-            {
-                return HttpNotFound();
-            }
-            return View(servicio);
+            var servicio = modeloBD.Servicio.FirstOrDefault(s => s.id_servicio == id && s.estado == "activo");
+            return servicio == null ? (ActionResult)HttpNotFound() : View(servicio);
         }
 
+        private string GuardarImagen(HttpPostedFileBase imagen, string actual)
+        {
+            if (imagen == null || imagen.ContentLength <= 0) return actual;
+            if (imagen.ContentLength > 5 * 1024 * 1024) throw new InvalidOperationException("La imagen no puede superar 5 MB.");
+            var extension = Path.GetExtension(imagen.FileName)?.ToLowerInvariant();
+            var permitidas = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+            if (string.IsNullOrEmpty(extension) || !permitidas.Contains(extension)) throw new InvalidOperationException("Formato de imagen no permitido. Use JPG, PNG o WEBP.");
+            var carpeta = Server.MapPath("~/Content/Imagenes");
+            Directory.CreateDirectory(carpeta);
+            var nombre = Guid.NewGuid().ToString("N") + extension;
+            imagen.SaveAs(Path.Combine(carpeta, nombre));
+            return nombre;
+        }
 
-
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) modeloBD.Dispose();
+            base.Dispose(disposing);
+        }
     }
 }
